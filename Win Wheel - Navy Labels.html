@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<title>What's Your Win Today?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #FFF6E9;
+    --bg-2: #FFE8D1;
+    --ink: #1F1230;
+    --ink-soft: #4A3B5E;
+    --navy: #0B1F4D;
+    --gold-1: #FFE27A;
+    --gold-2: #F5B400;
+    --gold-3: #B8760B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1100px 700px at 15% -10%, #FFD9B0 0%, transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, #FFC4D6 0%, transparent 55%),
+      radial-gradient(1000px 700px at 50% 110%, #D7E7FF 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    overflow-x: hidden;
+  }
+
+  .bg-deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-deco span {
+    position: absolute; opacity: 0.5;
+    animation: floatDrift 14s ease-in-out infinite;
+  }
+  @keyframes floatDrift {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-22px) rotate(18deg); }
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 920px; margin: 0 auto;
+    padding: 40px 24px 80px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-3);
+    background: linear-gradient(180deg, #FFF4D4, #FFE69B);
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(184, 118, 11, 0.25);
+    box-shadow: 0 2px 0 rgba(184, 118, 11, 0.15), 0 6px 16px rgba(245, 180, 0, 0.18);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: clamp(40px, 6.2vw, 72px);
+    line-height: 0.95;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  h1 .accent {
+    background: linear-gradient(180deg, #F5B400 0%, #E26B1A 50%, #C13A5B 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tagline {
+    font-size: 17px; font-weight: 500;
+    color: var(--ink-soft);
+    margin: 0 0 32px;
+    max-width: 520px;
+  }
+
+  .wheel-wrap {
+    position: relative;
+    width: min(640px, 90vw);
+    aspect-ratio: 1/1;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 36px;
+  }
+
+  .pointer {
+    position: absolute;
+    top: -14px; left: 50%; transform: translateX(-50%);
+    width: 84px; height: 108px;
+    z-index: 20;
+    filter: drop-shadow(0 10px 18px rgba(184, 118, 11, 0.4));
+  }
+  .pointer .sparkle {
+    transform-origin: center;
+    animation: sparkleTwinkle 1.6s ease-in-out infinite;
+  }
+  .pointer .sparkle:nth-child(2) { animation-delay: 0.3s; }
+  .pointer .sparkle:nth-child(3) { animation-delay: 0.7s; }
+  .pointer .sparkle:nth-child(4) { animation-delay: 1s; }
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.7); }
+    50%      { opacity: 1;   transform: scale(1.2); }
+  }
+
+  .wheel {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    transition: transform 5.2s cubic-bezier(0.17, 0.67, 0.2, 1);
+    will-change: transform;
+    box-shadow:
+      0 0 0 10px #FFFFFF,
+      0 0 0 12px rgba(31, 18, 48, 0.08),
+      0 28px 60px -20px rgba(31, 18, 48, 0.35),
+      inset 0 0 80px rgba(31, 18, 48, 0.08);
+  }
+  .wheel svg { display: block; width: 100%; height: 100%; border-radius: 50%; }
+  /* Hard-lock all segment label text to navy */
+  .wheel svg text.seg-label { fill: #0B1F4D !important; }
+
+  .wheel.bumping { animation: microBump 0.08s ease-out; }
+  @keyframes microBump {
+    0%, 100% { filter: none; }
+    50% { filter: brightness(1.08); }
+  }
+
+  .hub {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 17%; aspect-ratio: 1/1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, #FFF7D0 0%, #FFE27A 35%, #F5B400 70%, #B8760B 100%);
+    box-shadow:
+      0 0 0 6px #FFFFFF,
+      0 0 0 8px rgba(184, 118, 11, 0.25),
+      inset 0 -6px 10px rgba(184, 118, 11, 0.4),
+      inset 0 4px 8px rgba(255, 247, 208, 0.9),
+      0 8px 24px rgba(184, 118, 11, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 15;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: clamp(14px, 2vw, 20px);
+    color: #5A370A;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  }
+
+  .spin-btn {
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 0.1em;
+    color: #fff;
+    padding: 22px 72px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: radial-gradient(circle at 30% 20%, #FF8A5B 0%, #E53F6B 55%, #B1246B 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -6px 12px rgba(100, 10, 50, 0.35),
+      0 10px 0 #8B1855,
+      0 18px 28px rgba(177, 36, 107, 0.4);
+    text-shadow: 0 2px 0 rgba(139, 24, 85, 0.6);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .spin-btn::after {
+    content: "";
+    position: absolute; inset: 6px;
+    border-radius: 999px;
+    border: 1.5px dashed rgba(255,255,255,0.45);
+    pointer-events: none;
+  }
+  .spin-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -6px 12px rgba(100, 10, 50, 0.35),
+      0 12px 0 #8B1855,
+      0 22px 32px rgba(177, 36, 107, 0.45);
+  }
+  .spin-btn:active:not(:disabled) {
+    transform: translateY(6px);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -6px 12px rgba(100, 10, 50, 0.35),
+      0 4px 0 #8B1855,
+      0 10px 18px rgba(177, 36, 107, 0.4);
+  }
+  .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .spin-sub {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .spin-sub kbd {
+    display: inline-block;
+    padding: 2px 8px; border-radius: 6px;
+    background: #fff; border: 1px solid rgba(31,18,48,0.15);
+    box-shadow: 0 1px 0 rgba(31,18,48,0.1);
+    font-size: 11px; font-weight: 600;
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(31, 18, 48, 0.55);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .modal {
+    position: relative;
+    width: min(540px, 92vw);
+    background: #FFFBF2;
+    border-radius: 28px;
+    padding: 44px 36px 32px;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(31, 18, 48, 0.4), 0 0 0 1px rgba(255,255,255,0.8) inset;
+    transform: scale(0.85) translateY(30px);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    overflow: hidden;
+  }
+  .modal-backdrop.open .modal { transform: scale(1) translateY(0); opacity: 1; }
+  .modal::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(245, 180, 0, 0.15), transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(226, 63, 107, 0.12), transparent 55%);
+    pointer-events: none;
+  }
+  .modal-eyebrow {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold-3);
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .modal h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+    line-height: 1.05;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+  .modal .task-card {
+    position: relative;
+    background: linear-gradient(135deg, #FFF4D4 0%, #FFE7B3 100%);
+    border: 2px dashed rgba(184, 118, 11, 0.4);
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin: 20px 0 18px;
+  }
+  .modal .task-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold-3);
+    margin-bottom: 6px;
+  }
+  .modal .task-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--navy);
+    text-wrap: balance;
+  }
+  .modal .cheer {
+    font-size: 16px; font-weight: 500;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+    text-wrap: pretty;
+    position: relative;
+  }
+  .modal-actions { display: flex; gap: 12px; justify-content: center; position: relative; }
+  .btn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 22px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #2BCB7F 0%, #14A35F 100%);
+    color: white;
+    box-shadow: 0 6px 0 #0C7A44, 0 10px 18px rgba(20, 163, 95, 0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #0C7A44, 0 12px 22px rgba(20, 163, 95, 0.4); }
+  .btn-primary:active { transform: translateY(3px); box-shadow: 0 3px 0 #0C7A44, 0 6px 10px rgba(20, 163, 95, 0.3); }
+  .btn-secondary {
+    background: #FFF;
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1.5px rgba(31,18,48,0.15), 0 4px 0 rgba(31,18,48,0.1);
+  }
+  .btn-secondary:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px rgba(31,18,48,0.25), 0 6px 0 rgba(31,18,48,0.12); }
+
+  .confetti { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+  .confetti span {
+    position: absolute;
+    width: 10px; height: 14px;
+    top: -20px;
+    opacity: 0;
+    border-radius: 2px;
+  }
+  .modal-backdrop.open .confetti span { animation: confettiFall 2.4s ease-out forwards; }
+  @keyframes confettiFall {
+    0%   { transform: translate(0, -20px) rotate(0); opacity: 1; }
+    100% { transform: translate(var(--dx, 0), 560px) rotate(var(--rot, 540deg)); opacity: 0; }
+  }
+
+  .footer-note {
+    margin-top: 48px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    opacity: 0.7;
+  }
+
+  .history { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 36px; }
+  .history-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    opacity: 0.7;
+  }
+  .history-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 640px; }
+  .chip {
+    font-size: 12px; font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid rgba(31,18,48,0.08);
+    color: var(--ink);
+    box-shadow: 0 1px 0 rgba(31,18,48,0.06);
+  }
+  .chip .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<div class="bg-deco" aria-hidden="true">
+  <span style="left:5%; top:15%;"><svg width="28" height="28" viewBox="0 0 28 28"><path d="M14 2 L17 11 L26 14 L17 17 L14 26 L11 17 L2 14 L11 11 Z" fill="#F5B400"/></svg></span>
+  <span style="left:90%; top:20%; animation-delay: -4s;"><svg width="22" height="22" viewBox="0 0 28 28"><circle cx="14" cy="14" r="8" fill="#E53F6B"/></svg></span>
+  <span style="left:8%; top:65%; animation-delay: -2s;"><svg width="24" height="24" viewBox="0 0 28 28"><rect x="6" y="6" width="16" height="16" rx="3" fill="#14A35F" transform="rotate(20 14 14)"/></svg></span>
+  <span style="left:92%; top:70%; animation-delay: -6s;"><svg width="26" height="26" viewBox="0 0 28 28"><path d="M14 2 L17 11 L26 14 L17 17 L14 26 L11 17 L2 14 L11 11 Z" fill="#6D8BFF"/></svg></span>
+  <span style="left:50%; top:8%; animation-delay: -3s;"><svg width="18" height="18" viewBox="0 0 28 28"><circle cx="14" cy="14" r="6" fill="#B85CD6"/></svg></span>
+  <span style="left:3%; top:40%; animation-delay: -8s;"><svg width="20" height="20" viewBox="0 0 28 28"><path d="M14 2 L17 11 L26 14 L17 17 L14 26 L11 17 L2 14 L11 11 Z" fill="#2BCB7F"/></svg></span>
+  <span style="left:95%; top:45%; animation-delay: -5s;"><svg width="22" height="22" viewBox="0 0 28 28"><rect x="6" y="6" width="16" height="16" rx="4" fill="#FF7A3D"/></svg></span>
+</div>
+
+<main class="page">
+  <div class="eyebrow">✦ Agent Energy Generator ✦</div>
+  <h1>What's your <span class="accent">win today?</span></h1>
+  <p class="tagline">One small spin. One meaningful action. Great agents stack tiny wins — your future pipeline will thank you.</p>
+
+  <div class="wheel-wrap">
+    <svg class="pointer" viewBox="0 0 84 108" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#FFF4C2"/>
+          <stop offset="35%" stop-color="#FFE27A"/>
+          <stop offset="70%" stop-color="#F5B400"/>
+          <stop offset="100%" stop-color="#B8760B"/>
+        </linearGradient>
+        <linearGradient id="goldShine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"  stop-color="rgba(255,255,255,0)"/>
+          <stop offset="50%" stop-color="rgba(255,255,255,0.75)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient>
+        <radialGradient id="gem" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#FFF7D0"/>
+          <stop offset="50%" stop-color="#FFD65A"/>
+          <stop offset="100%" stop-color="#B8760B"/>
+        </radialGradient>
+      </defs>
+      <path d="M42 100 L8 36 Q8 18 26 14 L58 14 Q76 18 76 36 Z" fill="url(#goldGrad)" stroke="#8A5508" stroke-width="1.5"/>
+      <path d="M30 22 L24 82" stroke="url(#goldShine)" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+      <circle cx="42" cy="28" r="9" fill="url(#gem)" stroke="#8A5508" stroke-width="1"/>
+      <circle cx="39" cy="25" r="2.5" fill="#FFFBEA" opacity="0.9"/>
+      <g class="sparkle"><path d="M16 46 l2 -6 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 z" fill="#FFF8D6"/></g>
+      <g class="sparkle"><path d="M66 60 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 z" fill="#FFFBEA"/></g>
+      <g class="sparkle"><path d="M24 76 l1 -3 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 z" fill="#FFFBEA"/></g>
+      <g class="sparkle"><path d="M58 38 l1 -3 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 z" fill="#FFFBEA"/></g>
+    </svg>
+
+    <div class="wheel" id="wheel">
+      <svg viewBox="-110 -110 220 220" id="wheelSvg" aria-label="Prize wheel"></svg>
+    </div>
+
+    <div class="hub">SPIN</div>
+  </div>
+
+  <button class="spin-btn" id="spinBtn">SPIN!</button>
+  <div class="spin-sub">or tap <kbd>Space</kbd></div>
+
+  <div class="history" id="history" aria-live="polite">
+    <div class="history-label" id="historyLabel" style="display:none;">Recent spins</div>
+    <div class="history-chips" id="historyChips"></div>
+  </div>
+
+  <div class="footer-note">Small wins compound. Every spin is a nudge toward momentum. 🏡</div>
+</main>
+
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="confetti" id="confetti"></div>
+    <div class="modal-eyebrow">✦ Today's Win ✦</div>
+    <h2 id="modalTitle">Let's go!</h2>
+    <div class="task-card">
+      <div class="task-label">Your mission</div>
+      <div class="task-text" id="modalTask">—</div>
+    </div>
+    <p class="cheer" id="modalCheer">You've got this.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="spinAgainBtn">Spin again</button>
+      <button class="btn btn-primary" id="letsGoBtn">Let's do it →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TASKS = [
+    "Find an open house to attend",
+    "Host a weekday open house",
+    "Host a weekend open house",
+    "Update something",
+    "Ask someone for a Google review",
+    "Research a useful new tool",
+    "Research an additional income stream",
+    "Do something kind for a past client",
+    "Learn about a neighborhood you want to farm",
+    "Pull a market update",
+    "Set a new goal",
+    "Reach out to a referral partner",
+    "Attend an event",
+    "Register for a class",
+    "Work toward a new credential",
+  ];
+
+  const COLORS = [
+    "#FF5E7A","#FF9A3C","#FFC93C","#86D157","#2BCB7F",
+    "#2FBFB6","#4AB8F2","#6D8BFF","#A66DFF","#E062CC",
+    "#FF6BA0","#FF7A3D","#FFD93C","#52D0A3","#F24D6A",
+  ];
+
+  const CHEERS = [
+    ["Easy win, agent!", "This one pays dividends. Take 20 minutes and knock it out."],
+    ["Let's gooo.", "Future-you is already thanking you. Small step, real momentum."],
+    ["Today's the day.", "You don't need a perfect plan — you just need to start."],
+    ["Pipeline fuel ⛽", "Every action here plants a seed. Go plant it."],
+    ["Stack the win.", "Consistency beats intensity. Today, you're consistent."],
+    ["Let's build 🧱", "Big careers are made of small moves. Here's today's."],
+    ["Momentum unlocked.", "15 minutes of focus beats 3 hours of scrolling. Go."],
+    ["You + this task = 🔥", "Nothing beats the confidence of crossing something off."],
+  ];
+
+  const svg = document.getElementById('wheelSvg');
+  const N = TASKS.length;
+  const SEG = 360 / N;
+  const R = 100;
+
+  function polar(r, angleDeg) {
+    const a = (angleDeg - 90) * Math.PI / 180;
+    return [r * Math.cos(a), r * Math.sin(a)];
+  }
+  function segPath(startDeg, endDeg) {
+    const [x1, y1] = polar(R, startDeg);
+    const [x2, y2] = polar(R, endDeg);
+    const large = (endDeg - startDeg) > 180 ? 1 : 0;
+    return `M 0 0 L ${x1.toFixed(3)} ${y1.toFixed(3)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(3)} ${y2.toFixed(3)} Z`;
+  }
+  function shade(hex, percent) {
+    const h = hex.replace('#','');
+    const r = parseInt(h.substring(0,2),16);
+    const g = parseInt(h.substring(2,4),16);
+    const b = parseInt(h.substring(4,6),16);
+    const t = percent < 0 ? 0 : 255;
+    const p = Math.abs(percent) / 100;
+    return '#' + [r,g,b].map(v => Math.round((t - v) * p) + v)
+      .map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+  function wrapLabel(text, maxChar) {
+    const words = text.split(' ');
+    const lines = [];
+    let cur = '';
+    for (const w of words) {
+      if ((cur + ' ' + w).trim().length > maxChar) {
+        if (cur) lines.push(cur);
+        cur = w;
+      } else { cur = (cur + ' ' + w).trim(); }
+    }
+    if (cur) lines.push(cur);
+    if (lines.length > 3) { lines.length = 3; lines[2] = lines[2] + '…'; }
+    return lines;
+  }
+  function escapeXml(s) {
+    return s.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+  }
+
+  let defs = '<defs>';
+  COLORS.forEach((c, i) => {
+    defs += `<radialGradient id="segGrad${i}" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="${shade(c, 14)}"/>
+      <stop offset="100%" stop-color="${shade(c, -6)}"/>
+    </radialGradient>`;
+  });
+  defs += '</defs>';
+
+  const parts = [defs];
+  for (let i = 0; i < N; i++) {
+    const start = i * SEG - SEG / 2;
+    const end   = start + SEG;
+    parts.push(`<path d="${segPath(start, end)}" fill="url(#segGrad${i})" stroke="rgba(255,255,255,0.7)" stroke-width="0.6"/>`);
+  }
+  parts.push(`<circle cx="0" cy="0" r="${R}" fill="none" stroke="rgba(31,18,48,0.15)" stroke-width="0.6"/>`);
+  parts.push(`<circle cx="0" cy="0" r="${R - 4}" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.3" stroke-dasharray="1.2 1.2"/>`);
+  for (let i = 0; i < N; i++) {
+    const angle = i * SEG - SEG / 2;
+    const [x, y] = polar(R - 2.5, angle);
+    parts.push(`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.9" fill="#ffffff" opacity="0.9"/>`);
+  }
+
+  // Labels — explicit NAVY fill on every <text>
+  for (let i = 0; i < N; i++) {
+    const mid = i * SEG;
+    const lines = wrapLabel(TASKS[i], 14);
+    const textNodes = lines.map((ln, idx) => {
+      const y = -R + 16 + idx * 5.2;
+      return `<text class="seg-label" x="0" y="${y.toFixed(2)}" text-anchor="middle"
+                font-family="Poppins, sans-serif"
+                font-size="4.3" font-weight="800"
+                fill="#0B1F4D">${escapeXml(ln)}</text>`;
+    }).join('');
+    parts.push(`<g transform="rotate(${mid})">${textNodes}
+      <circle cx="0" cy="${-R + 6}" r="1.5" fill="#ffffff" opacity="0.9"/>
+    </g>`);
+  }
+  svg.innerHTML = parts.join('');
+
+  // SPIN LOGIC
+  const wheel   = document.getElementById('wheel');
+  const spinBtn = document.getElementById('spinBtn');
+  const modal   = document.getElementById('modal');
+  const modalTask = document.getElementById('modalTask');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalCheer = document.getElementById('modalCheer');
+  const confettiBox = document.getElementById('confetti');
+  const historyChips = document.getElementById('historyChips');
+  const historyLabel = document.getElementById('historyLabel');
+
+  let currentRotation = 0;
+  let spinning = false;
+  let history = [];
+  let tickTimeouts = [];
+  const SPIN_MS = 5200;
+
+  function spin() {
+    if (spinning) return;
+    spinning = true;
+    spinBtn.disabled = true;
+
+    const winnerIdx = Math.floor(Math.random() * N);
+    const turns = 6 + Math.floor(Math.random() * 3);
+    const jitter = (Math.random() - 0.5) * (SEG * 0.55);
+    const startRotation = currentRotation;
+    const targetMod = ((-(winnerIdx * SEG) + jitter) % 360 + 360) % 360;
+    let end = Math.floor(startRotation / 360) * 360 + turns * 360 + targetMod;
+    while (end <= startRotation + turns * 360 - 180) end += 360;
+    const delta = end - startRotation;
+    currentRotation = end;
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+    scheduleTicks(delta, SPIN_MS);
+
+    const onEnd = () => {
+      wheel.removeEventListener('transitionend', onEnd);
+      showResult(winnerIdx);
+      spinning = false;
+      spinBtn.disabled = false;
+    };
+    wheel.addEventListener('transitionend', onEnd);
+  }
+
+  function scheduleTicks(deltaDeg, durationMs) {
+    tickTimeouts.forEach(clearTimeout);
+    tickTimeouts = [];
+    const totalTicks = Math.floor(deltaDeg / SEG);
+    for (let k = 1; k <= totalTicks; k++) {
+      const angleAt = k * SEG;
+      const eased = angleAt / deltaDeg;
+      if (eased > 1) continue;
+      const t = 1 - Math.pow(1 - eased, 1 / 3);
+      const ms = t * durationMs;
+      if (ms < 150) continue;
+      const id = setTimeout(() => {
+        wheel.classList.add('bumping');
+        setTimeout(() => wheel.classList.remove('bumping'), 70);
+      }, ms);
+      tickTimeouts.push(id);
+    }
+  }
+
+  function showResult(idx) {
+    modalTask.textContent = TASKS[idx];
+    const cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
+    modalTitle.textContent = cheer[0];
+    modalCheer.textContent = cheer[1];
+
+    confettiBox.innerHTML = '';
+    const colors = ['#FF5E7A','#FFC93C','#2BCB7F','#4AB8F2','#A66DFF','#FF9A3C','#E062CC'];
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('span');
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.background = colors[i % colors.length];
+      s.style.setProperty('--dx', ((Math.random() - 0.5) * 260) + 'px');
+      s.style.setProperty('--rot', (360 + Math.random() * 720) + 'deg');
+      s.style.animationDelay = (Math.random() * 0.4) + 's';
+      s.style.animationDuration = (2 + Math.random() * 1.2) + 's';
+      s.style.width = (7 + Math.random() * 8) + 'px';
+      s.style.height = (10 + Math.random() * 10) + 'px';
+      s.style.transform = `rotate(${Math.random() * 360}deg)`;
+      confettiBox.appendChild(s);
+    }
+
+    modal.classList.add('open');
+    addToHistory(idx);
+  }
+
+  function addToHistory(idx) {
+    history.unshift(idx);
+    if (history.length > 6) history.length = 6;
+    historyLabel.style.display = history.length ? '' : 'none';
+    historyChips.innerHTML = history.map(i =>
+      `<span class="chip"><span class="dot" style="background:${COLORS[i]}"></span>${TASKS[i]}</span>`
+    ).join('');
+  }
+
+  function closeModal() { modal.classList.remove('open'); }
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.getElementById('letsGoBtn').addEventListener('click', closeModal);
+  document.getElementById('spinAgainBtn').addEventListener('click', () => {
+    closeModal();
+    setTimeout(spin, 280);
+  });
+
+  spinBtn.addEventListener('click', spin);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !spinning && !modal.classList.contains('open')) {
+      e.preventDefault();
+      spin();
+    }
+    if (e.code === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+</script>
+</body>
+</html>
