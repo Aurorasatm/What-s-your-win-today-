@@ -23,6 +23,7 @@
   html, body { margin: 0; padding: 0; }
   body {
     min-height: 100vh;
+    min-height: 100svh;
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--ink);
     background:
@@ -46,32 +47,35 @@
   .page {
     position: relative; z-index: 1;
     max-width: 920px; margin: 0 auto;
-    padding: 40px 24px 80px;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: clamp(16px, 2.5vh, 28px) 20px clamp(20px, 3vh, 32px);
     display: flex; flex-direction: column; align-items: center;
     text-align: center;
+    gap: clamp(10px, 1.6vh, 18px);
   }
 
   .eyebrow {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 13px;
+    font-size: clamp(10px, 1.3vh, 13px);
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--gold-3);
     background: linear-gradient(180deg, #FFF4D4, #FFE69B);
-    padding: 8px 16px;
+    padding: 7px 15px;
     border-radius: 999px;
     border: 1px solid rgba(184, 118, 11, 0.25);
     box-shadow: 0 2px 0 rgba(184, 118, 11, 0.15), 0 6px 16px rgba(245, 180, 0, 0.18);
-    margin-bottom: 18px;
+    margin: 0;
   }
 
   h1 {
     font-family: 'Poppins', sans-serif;
     font-weight: 900;
-    font-size: clamp(40px, 6.2vw, 72px);
+    font-size: clamp(30px, 5.4vh, 60px);
     line-height: 0.95;
-    margin: 0 0 10px;
+    margin: 0;
     letter-spacing: -0.02em;
   }
   h1 .accent {
@@ -81,18 +85,19 @@
     color: transparent;
   }
   .tagline {
-    font-size: 17px; font-weight: 500;
+    font-size: clamp(12px, 1.7vh, 16px); font-weight: 500;
     color: var(--ink-soft);
-    margin: 0 0 32px;
+    margin: 0;
     max-width: 520px;
   }
 
   .wheel-wrap {
     position: relative;
-    width: min(640px, 90vw);
+    /* Size wheel to fit viewport height, leaving room for header + button */
+    width: min(88vw, 58vh, 540px);
     aspect-ratio: 1/1;
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 36px;
+    margin: 0;
   }
 
   .pointer {
@@ -162,10 +167,10 @@
     position: relative;
     font-family: 'Poppins', sans-serif;
     font-weight: 900;
-    font-size: 28px;
+    font-size: clamp(20px, 2.6vh, 28px);
     letter-spacing: 0.1em;
     color: #fff;
-    padding: 22px 72px;
+    padding: clamp(14px, 2vh, 20px) clamp(44px, 8vw, 72px);
     border: none;
     border-radius: 999px;
     cursor: pointer;
@@ -203,12 +208,10 @@
   }
   .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .spin-sub {
-    margin-top: 14px;
-    font-size: 13px;
-    color: var(--ink-soft);
-    font-weight: 500;
-  }
+  /* Hidden — user requested to remove distracting helpers under the SPIN button */
+  .spin-sub { display: none; }
+  .history { display: none; }
+  .footer-note { display: none; }
   .spin-sub kbd {
     display: inline-block;
     padding: 2px 8px; border-radius: 6px;
@@ -341,13 +344,13 @@
   }
 
   .footer-note {
-    margin-top: 48px;
+    margin-top: 32px;
     font-size: 12px;
     color: var(--ink-soft);
     opacity: 0.7;
   }
 
-  .history { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 36px; }
+  .history { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 36px; }
   .history-label {
     font-size: 11px; font-weight: 600;
     letter-spacing: 0.2em;
